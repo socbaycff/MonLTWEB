@@ -8,6 +8,7 @@ import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -16,6 +17,8 @@ import entity.Job;
 
 @Controller
 public class MainController {
+	private List<Job> jobList;
+	
 	@RequestMapping("index")
 	public String index( ModelMap model) {
 		model.addAttribute("username", LoginSignUpController.username);
@@ -28,14 +31,24 @@ public class MainController {
 		System.out.println("job list");
 		LoginSignUpController.getSession(LoginSignUpController.loginMail, LoginSignUpController.loginPass, (Session sess)-> {
 				Query query = sess.createQuery("FROM Job");
-				List<Job> list = query.list();
-				model.addAttribute("jobs", list);
+				jobList = query.list();
+				model.addAttribute("jobs", jobList);
 		}, null);
 		return "jobs/jobs";
 	}
 	
-	@RequestMapping("job-details")
-	public String detail() {
+	@RequestMapping(value = "jobs", method = RequestMethod.POST)
+	public String jobsPost(ModelMap model) {
+		System.out.println("job list post");
+		
+		model.addAttribute("jobs", jobList);
+		return "jobs/jobs";
+	}
+	
+	@RequestMapping("job-details/{id}")
+	public String detail(@PathVariable("id") String id) {
+		System.out.println("detail with path variable");
+		System.out.println(id);
 		return "job-details/job-details";
 	}
 	

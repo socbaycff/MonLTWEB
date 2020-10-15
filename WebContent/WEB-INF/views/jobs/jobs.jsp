@@ -108,7 +108,7 @@
 			<div class="all-blog-posts">
 				<div class="row">
 					<div class="col-md-4 col-xs-12">
-						<form action="#">
+						<form action="jobs.html" method="post">
 							<h4 style="margin-bottom: 15px">Type</h4>
 
 							<div>
@@ -217,6 +217,8 @@
 										1 (5)</span>
 								</label>
 							</div>
+							   
+                              <button type="submit" id="form-submit" class="main-button">Fill</button>
 						</form>
 					</div>
 
@@ -232,14 +234,14 @@
 										<img src="assets/images/product-1-720x480.jpg" alt="">
 									</div>
 									<div class="down-content">
-										<span>${job.luong} VND</span> <a href="job-details.html"><h4>${job.title}</h4></a>
+										<span>${job.luong} VND</span> <a href="job-details/${job.jobId}.html"><h4>${job.title}</h4></a>
 										<p>${job.description}</p>
 										<div class="post-options">
 											<div class="row">
 												<div class="col-lg-12">
 													<ul class="post-tags">
 														<li><i class="fa fa-bullseye"></i></li>
-														<li><a href="job-details.html">View Job</a></li>
+														<li><a href="job-details/${job.jobId}.html">View Job</a></li>
 													</ul>
 												</div>
 											</div>
@@ -248,6 +250,7 @@
 								</div>
 							</div>
 							</c:forEach>
+							
 							<!-- item ket thuc -->
 						</div>
 					</div>

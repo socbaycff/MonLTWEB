@@ -71,7 +71,8 @@ public class LoginSignUpController {
 	@RequestMapping("signup")
 	public String signup() {
 		System.out.println("sign up get");
-		return "signup/signup";
+		//return "signup/signup";
+		return "job-details/job-details";
 	}
 
 	@RequestMapping(value = "signup", method = RequestMethod.POST)
