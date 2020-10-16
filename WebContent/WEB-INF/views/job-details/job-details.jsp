@@ -90,8 +90,8 @@
 				<div class="row">
 					<div class="col-lg-12">
 						<div class="text-content">
-							<h4>$60 000</h4>
-							<h2>Lorem ipsum dolor sit amet.</h2>
+							<h4>${job.luong}VND</h4>
+							<h2>${job.title}</h2>
 						</div>
 					</div>
 				</div>
@@ -124,9 +124,7 @@
 						</div>
 
 						<div class="content">
-							<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-								Ea reiciendis rem, recusandae dolore quam nesciunt repellendus
-								distinctio nisi officiis molestiae!</p>
+							<p>${job.description}</p>
 						</div>
 					</div>
 
@@ -154,29 +152,18 @@
 				</div>
 
 				<div class="content">
-					<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-						Mollitia doloremque sit, enim sint odio corporis illum
-						perferendis, unde repellendus aut dolore doloribus minima qui
-						ullam vel possimus magnam ipsa deleniti.</p>
+					<p>Thể loại: ${job.category}</p>
+
+					<br>
+					<p>Mô tả: ${job.description}</p>
 
 					<br>
 
-					<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-						Necessitatibus ducimus ab numquam magnam aliquid, odit provident
-						consectetur corporis eius blanditiis alias nulla commodi qui
-						voluptatibus laudantium quaerat tempore possimus esse nam sed
-						accusantium inventore? Sapiente minima dicta sed quia sunt?</p>
+					<p>Số năm kinh nghiệm cần: ${job.expYear}</p>
 
 					<br>
 
-					<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-						Rerum qui, corrupti consequuntur. Officia consectetur error amet
-						debitis esse minus quasi, dicta suscipit tempora, natus, vitae
-						voluptatem quae libero. Sunt nulla culpa impedit! Aliquid
-						cupiditate, impedit reiciendis dolores, illo adipisci, omnis dolor
-						distinctio voluptas expedita maxime officiis maiores cumque sequi
-						quaerat culpa blanditiis. Quia tenetur distinctio rem, quibusdam
-						officiis voluptatum neque!</p>
+					<p>Trình độ học vấn yêu cầu: ${job.educationLV}</p>
 				</div>
 
 				<br> <br>

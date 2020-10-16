@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import entity.FilterSP;
 import entity.Job;
 import entity.User;
 import utils.ErrorHandler;
@@ -71,12 +72,11 @@ public class LoginSignUpController {
 	@RequestMapping("signup")
 	public String signup() {
 		System.out.println("sign up get");
-		//return "signup/signup";
-		return "job-details/job-details";
+		return "signup/signup";
 	}
 
 	@RequestMapping(value = "signup", method = RequestMethod.POST)
-	public String signupPost(ModelMap model,@RequestParam("pass") String pass, @RequestParam("email") String email, @RequestParam("username") String username,@RequestParam("isComp") boolean isComp) {
+	public String signupPost(ModelMap model,@RequestParam("pass") String pass, @RequestParam("email") String email, @RequestParam("username") String username,@RequestParam(value = "isComp", defaultValue = "false") boolean isComp) {
 		System.out.println("sign up post");
 		System.out.println(pass);
 		System.out.println(email);
@@ -100,8 +100,6 @@ public class LoginSignUpController {
 			boolean isSuccess = query.execute();
 			
 		},null);
-		model.addAttribute("pass", pass);
-		model.addAttribute("email", email);
 		return "login/login";
 	}
 	
@@ -129,6 +127,7 @@ public class LoginSignUpController {
 
 		config.addAnnotatedClass(User.class);
 		config.addAnnotatedClass(Job.class);
+		config.addAnnotatedClass(FilterSP.class);
 
 		try {
 			

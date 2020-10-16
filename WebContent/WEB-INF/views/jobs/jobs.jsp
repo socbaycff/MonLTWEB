@@ -1,5 +1,6 @@
 <%@ page pageEncoding="utf-8"%>
 <%@ taglib uri="http://java.sun.com/jstl/core_rt" prefix="c"%>
+<%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -60,8 +61,10 @@
 						<li class="nav-item active"><a class="nav-link"
 							href="jobs.html">Jobs</a></li>
 						<!-- phan nay dung the if core de hien thi chi khi login voi quyen company -->
-						<li class="nav-item"><a class="nav-link" href="job-add.html">Add
-								Job</a></li>
+						<c:if test="${role == 'Company'}" >
+							<li class="nav-item"><a class="nav-link" href="job-add.html">Add Job</a></li>		
+						</c:if>
+						<li class="nav-item active">${username}</li>
 						<li class="nav-item active"><a class="nav-link"
 							href="login.html">Sign Out</a></li>
 						<!--               <li class="nav-item dropdown">
@@ -132,93 +135,39 @@
 							<br>
 
 							<h4 style="margin-bottom: 15px">Category</h4>
-
-							<div>
-								<label> <input type="checkbox"> <span>Accounting
-										/ Finance / Insurance Jobs (5)</span>
-								</label>
-							</div>
-
-							<div>
-								<label> <input type="checkbox"> <span>Accounting
-										/ Finance / Insurance Jobs (5)</span>
-								</label>
-							</div>
-
-							<div>
-								<label> <input type="checkbox"> <span>Accounting
-										/ Finance / Insurance Jobs (5)</span>
-								</label>
-							</div>
-
+						 	<c:forEach var="cat" items="${cats}">
+								<div>
+									<label> <input type="checkbox" name="cats" value="${cat.name}" > <span>${cat.name} (${cat.count})</span>
+									</label>
+								</div>
+							</c:forEach> 
+						
 							<br>
 
-							<h4 style="margin-bottom: 15px">Career levels</h4>
-
-							<div>
-								<label> <input type="checkbox"> <span>Entry
-										Level (5)</span>
-								</label>
-							</div>
-
-							<div>
-								<label> <input type="checkbox"> <span>Entry
-										Level (5)</span>
-								</label>
-							</div>
-
-							<div>
-								<label> <input type="checkbox"> <span>Entry
-										Level (5)</span>
-								</label>
-							</div>
-
-							<br>
 
 							<h4 style="margin-bottom: 15px">Education levels</h4>
-
-							<div>
-								<label> <input type="checkbox"> <span>Associate
-										Degree (5)</span>
-								</label>
-							</div>
-
-							<div>
-								<label> <input type="checkbox"> <span>Associate
-										Degree (5)</span>
-								</label>
-							</div>
-
-							<div>
-								<label> <input type="checkbox"> <span>Associate
-										Degree (5)</span>
-								</label>
-							</div>
+						<c:forEach var="edulv" items="${edulvs}">
+								<div>
+									<label> <input type="checkbox" name="edulvs" value="${edulv.name}"> <span>${edulv.name} (${edulv.count})</span>
+									</label>
+								</div>
+							</c:forEach> 
+							
 
 							<br>
 
 
 							<h4 style="margin-bottom: 15px">Years of experience</h4>
+							<c:forEach var="exp" items="${expYear}">
+								<div>
+									<label> <input type="checkbox" name="expYear" value="${exp.name}"> <span>&lt;
+											${exp.name} (${exp.count})</span>
+									</label>
+								</div>
+							</c:forEach> 
+							
 
-							<div>
-								<label> <input type="checkbox"> <span>&lt;
-										1 (5)</span>
-								</label>
-							</div>
-
-							<div>
-								<label> <input type="checkbox"> <span>&lt;
-										1 (5)</span>
-								</label>
-							</div>
-
-							<div>
-								<label> <input type="checkbox"> <span>&lt;
-										1 (5)</span>
-								</label>
-							</div>
-							   
-                              <button type="submit" id="form-submit" class="main-button">Fill</button>
+							<button type="submit" id="form-submit" class="main-button">Fill</button>
 						</form>
 					</div>
 
@@ -226,31 +175,33 @@
 						<div class="row">
 							<!-- item bat dau -->
 							<c:forEach var="job" items="${jobs}">
-							
-							
-							<div class="col-sm-6">
-								<div class="blog-post">
-									<div class="blog-thumb">
-										<img src="assets/images/product-1-720x480.jpg" alt="">
-									</div>
-									<div class="down-content">
-										<span>${job.luong} VND</span> <a href="job-details/${job.jobId}.html"><h4>${job.title}</h4></a>
-										<p>${job.description}</p>
-										<div class="post-options">
-											<div class="row">
-												<div class="col-lg-12">
-													<ul class="post-tags">
-														<li><i class="fa fa-bullseye"></i></li>
-														<li><a href="job-details/${job.jobId}.html">View Job</a></li>
-													</ul>
+
+
+								<div class="col-sm-6">
+									<div class="blog-post">
+										<div class="blog-thumb">
+											<img src="assets/images/product-1-720x480.jpg" alt="">
+										</div>
+										<div class="down-content">
+											<span>${job.luong} VND</span> <a
+												href="job-details/${job.jobId}.html"><h4>${job.title}</h4></a>
+											<p>${job.description}</p>
+											<div class="post-options">
+												<div class="row">
+													<div class="col-lg-12">
+														<ul class="post-tags">
+															<li><i class="fa fa-bullseye"></i></li>
+															<li><a href="job-details/${job.jobId}.html">View
+																	Job</a></li>
+														</ul>
+													</div>
 												</div>
 											</div>
 										</div>
 									</div>
 								</div>
-							</div>
 							</c:forEach>
-							
+
 							<!-- item ket thuc -->
 						</div>
 					</div>
