@@ -31,12 +31,9 @@ import entity.Job;
 
 @Controller
 public class MainController {
-	private List<Job> jobList;
-	private List<Job> filtedJobList;
-	//public Job selectedJob;
-	private ArrayList<String> selectedCat = new ArrayList<String>();
-	private ArrayList<String> selectedEdu = new ArrayList<String>();;
-	private ArrayList<String> selectedExp = new ArrayList<String>();;
+//	private List<Job> jobList;
+//	private List<Job> filtedJobList;
+	// public Job selectedJob;
 
 	@RequestMapping("index")
 	public String index(ModelMap model) {
@@ -51,10 +48,10 @@ public class MainController {
 		LoginSignUpController.getSession(LoginSignUpController.loginMail, LoginSignUpController.loginPass,
 				(Session sess) -> {
 					Query query = sess.createQuery("FROM Job");
-					jobList = query.list();
+					List<Job> list = query.list();
 
 					getFilter(sess, model);
-					model.addAttribute("jobs", jobList);
+					model.addAttribute("jobs", list);
 				}, null);
 		model.addAttribute("role", LoginSignUpController.role);
 		model.addAttribute("username", LoginSignUpController.username);
@@ -64,12 +61,13 @@ public class MainController {
 	@RequestMapping(value = "jobs", method = RequestMethod.POST) // filter
 	public String jobsPost(ModelMap model, HttpServletRequest request) {
 		System.out.println("job list post");
-		selectedCat.clear();
-		selectedEdu.clear();
-		selectedExp.clear();
+		ArrayList<String> selectedCat = new ArrayList<String>();
+		ArrayList<Integer> selectedEdu = new ArrayList<>();
+		ArrayList<Integer> selectedExp = new ArrayList<>();
+
 		String[] ls = request.getParameterValues("cats");
 		if (ls != null) {
-			
+
 			for (String str : ls) {
 				selectedCat.add(str);
 			}
@@ -77,46 +75,69 @@ public class MainController {
 
 		String[] ls2 = request.getParameterValues("edulvs");
 		if (ls2 != null) {
-			
+
 			for (String str : ls2) {
-				selectedEdu.add(str);
+				selectedEdu.add(Integer.parseInt(str));
 			}
 		}
 		String[] ls3 = request.getParameterValues("expYear");
 		if (ls3 != null) {
-			
+
 			for (String str : ls3) {
-				selectedExp.add(str);
+				selectedExp.add(Integer.parseInt(str));
 			}
 		}
-		System.out.println("size cua edu");
-		System.out.println(selectedEdu.size());
-		System.out.println(jobList.get(0).getEducationLV());
-		System.out.println(selectedEdu);
-		Predicate<Job> catFilter = job -> {
-			if (selectedCat.size() == 0) {
-				return true;
-			} 
-			return selectedCat.contains(job.getCategory());
-		};
-		Predicate<Job> eduFilter = job -> {
-			if (selectedEdu.size() == 0) {
-				return true;
-			}
-			return selectedEdu.contains(job.getEducationLV().toString());
-		};
-		Predicate<Job> expFilter = job -> {
-			if (selectedExp.size() == 0) {
-				return true;
-			}
-			return selectedExp.contains(job.getExpYear().toString());
-		};
-		
-		filtedJobList = jobList.stream().filter(eduFilter).filter(expFilter).filter(catFilter).collect(Collectors.toList());
-		System.out.println("in debug danh sach filter");
-		System.out.println(filtedJobList.size());
+		//
+		LoginSignUpController.getSession(LoginSignUpController.loginMail, LoginSignUpController.loginPass,
+				(Session sess) -> {
+					// filter use 'IN' querry
+					
+					String whereStr = "";
+			
+					if (selectedCat.size() != 0) {
+						whereStr += "WHERE  job.Category IN :cats";
+					}
+					if (selectedEdu.size() != 0) {
+						if (whereStr != "") {
+							whereStr += " AND job.EducationLV IN :edulvs";
+						} else {
+							whereStr += " WHERE job.EducationLV IN :edulvs";
+						}
+						
+					}
+					if (selectedExp.size() != 0) {
+						if (whereStr != "") {
+							whereStr += " AND job.ExpYear IN :exps";
+						} else {
+							whereStr += " WHERE job.ExpYear IN :exps";
+						}
+						
+					}
+					String hql = "FROM Job job ";
+					hql += whereStr;
+					System.out.println(hql);
+					Query query = sess.createQuery(hql);
+					if (selectedCat.size() != 0) {
+						
+						query.setParameterList("cats", selectedCat);
+					}
+					if (selectedEdu.size() != 0) {
+						query.setParameterList("edulvs", selectedEdu);
+					}
+					if (selectedExp.size() != 0) {
+						query.setParameterList("exps", selectedExp);
+					}
+					
+					List<Job> filtedJobList = query.getResultList();
 
-		model.addAttribute("jobs", filtedJobList);
+//					filtedJobList = jobList.stream().filter(eduFilter).filter(expFilter).filter(catFilter).collect(Collectors.toList());
+//					System.out.println("in debug danh sach filter");
+					System.out.println(filtedJobList.size());
+
+					model.addAttribute("jobs", filtedJobList);
+
+				}, null);
+
 		return "jobs/jobs";
 	}
 
@@ -124,12 +145,12 @@ public class MainController {
 	public String detail(@PathVariable("id") String id, ModelMap model) {
 		System.out.println("detail with path variable");
 		// truy van voi id de nap vao detail
-		LoginSignUpController.getSession(LoginSignUpController.loginMail, LoginSignUpController.loginPass, (Session sess) -> {
-			Job job = sess.get(Job.class, Integer.parseInt(id));
-			model.addAttribute("job", job);
-		}, null);
-		
-		
+		LoginSignUpController.getSession(LoginSignUpController.loginMail, LoginSignUpController.loginPass,
+				(Session sess) -> {
+					Job job = sess.get(Job.class, Integer.parseInt(id));
+					model.addAttribute("job", job);
+				}, null);
+
 		return "job-details/job-details";
 	}
 
@@ -162,21 +183,22 @@ public class MainController {
 
 		return "redirect:/jobs.html";
 	}
-	
+
 	@RequestMapping("update/{id}")
 	public String updateJob(@PathVariable("id") String id, ModelMap model) {
 		System.out.println("update da vao");
 		System.out.println(id);
 		// doi lai truy van chu k dc dung cache
-		 
-		LoginSignUpController.getSession(LoginSignUpController.loginMail, LoginSignUpController.loginPass, (Session sess) -> {
-			 Job job = sess.get(Job.class, Integer.parseInt(id));
-			 model.addAttribute("job", job);
-		}, null);
-		
+
+		LoginSignUpController.getSession(LoginSignUpController.loginMail, LoginSignUpController.loginPass,
+				(Session sess) -> {
+					Job job = sess.get(Job.class, Integer.parseInt(id));
+					model.addAttribute("job", job);
+				}, null);
+
 		return "update-job/update-job";
 	}
-	
+
 	@RequestMapping(value = "update/{id}", method = RequestMethod.POST)
 	public String updateSave(@PathVariable("id") String id, Job job, @RequestParam("Luong") String luongStr) {
 		System.out.println("vao update save");
@@ -200,10 +222,9 @@ public class MainController {
 
 				}, null);
 
-		
-		return "redirect:/job-details/" + id +".html"; // quay ve detail
-	} 
-	
+		return "redirect:/job-details/" + id + ".html"; // quay ve detail
+	}
+
 	@RequestMapping("delete/{id}")
 	public String deleteJob(@PathVariable("id") String id) {
 		System.out.println("vao delete");
@@ -226,10 +247,8 @@ public class MainController {
 
 				}, null);
 
-		
 		return "redirect:/jobs.html";
 	}
-
 
 	private void getFilter(Session session, ModelMap model) {
 		Query query = session.createSQLQuery("EXEC SP_CATFILLTER").addEntity(FilterSP.class);
