@@ -113,7 +113,10 @@ public class LoginSignUpController {
 				System.out.print(item[0]);
 			}
 			
-		},null);
+		},() -> {
+			
+			
+		});
 	}
 
 

@@ -133,7 +133,7 @@
 					<div class="row">
 						<div class="col-sm-4">
 							<div class="main-button">
-								<a href="#">Apply for this Job</a>
+								<a href="update/${job.jobId}.html">Edit Job</a>
 							</div>
 						</div>
 					</div>

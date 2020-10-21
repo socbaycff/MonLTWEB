@@ -33,7 +33,7 @@ import entity.Job;
 public class MainController {
 	private List<Job> jobList;
 	private List<Job> filtedJobList;
-	public Job selectedJob;
+	//public Job selectedJob;
 	private ArrayList<String> selectedCat = new ArrayList<String>();
 	private ArrayList<String> selectedEdu = new ArrayList<String>();;
 	private ArrayList<String> selectedExp = new ArrayList<String>();;
@@ -61,7 +61,7 @@ public class MainController {
 		return "jobs/jobs";
 	}
 
-	@RequestMapping(value = "jobs", method = RequestMethod.POST)
+	@RequestMapping(value = "jobs", method = RequestMethod.POST) // filter
 	public String jobsPost(ModelMap model, HttpServletRequest request) {
 		System.out.println("job list post");
 		selectedCat.clear();
@@ -124,14 +124,12 @@ public class MainController {
 	public String detail(@PathVariable("id") String id, ModelMap model) {
 		System.out.println("detail with path variable");
 		// truy van voi id de nap vao detail
-		for (Job job : jobList) {
-
-			if (job.getJobId() == Integer.parseInt(id)) {
-				selectedJob = job;
-				model.addAttribute("job", job);
-				break;
-			}
-		}
+		LoginSignUpController.getSession(LoginSignUpController.loginMail, LoginSignUpController.loginPass, (Session sess) -> {
+			Job job = sess.get(Job.class, Integer.parseInt(id));
+			model.addAttribute("job", job);
+		}, null);
+		
+		
 		return "job-details/job-details";
 	}
 
@@ -150,7 +148,7 @@ public class MainController {
 					try {
 						Job job1 = new Job(job.getTitle(), job.getDescription(), job.getCategory(),
 								job.getEducationLV(), job.getExpYear(), new BigInteger(luongStr));
-						sess.save(job1);
+						sess.save(job1);// luu db
 						transaction.commit();
 
 					} catch (Exception ex) {
@@ -164,17 +162,74 @@ public class MainController {
 
 		return "redirect:/jobs.html";
 	}
+	
+	@RequestMapping("update/{id}")
+	public String updateJob(@PathVariable("id") String id, ModelMap model) {
+		System.out.println("update da vao");
+		System.out.println(id);
+		// doi lai truy van chu k dc dung cache
+		 
+		LoginSignUpController.getSession(LoginSignUpController.loginMail, LoginSignUpController.loginPass, (Session sess) -> {
+			 Job job = sess.get(Job.class, Integer.parseInt(id));
+			 model.addAttribute("job", job);
+		}, null);
+		
+		return "update-job/update-job";
+	}
+	
+	@RequestMapping(value = "update/{id}", method = RequestMethod.POST)
+	public String updateSave(@PathVariable("id") String id, Job job, @RequestParam("Luong") String luongStr) {
+		System.out.println("vao update save");
+		// update bang hibernate
+		LoginSignUpController.getSession(LoginSignUpController.loginMail, LoginSignUpController.loginPass,
+				(Session sess) -> {
+					Transaction transaction = sess.beginTransaction();
+					try {
+						Job job1 = new Job(job.getTitle(), job.getDescription(), job.getCategory(),
+								job.getEducationLV(), job.getExpYear(), new BigInteger(luongStr));
+						job1.setJobId(Integer.parseInt(id));
+						sess.update(job1);
+						transaction.commit();
 
-	/*
-	 * @ModelAttribute(value = "cats") public List<FilterSP> getCats() { return
-	 * cats; }
-	 * 
-	 * @ModelAttribute(value = "edulvs") public List<FilterSP> getEdulv() { return
-	 * edulvs; }
-	 * 
-	 * @ModelAttribute(value = "expYear") public List<FilterSP> getExp() { return
-	 * expyears; }
-	 */
+					} catch (Exception ex) {
+						System.out.println("catch----------");
+						transaction.rollback();
+						System.err.println(ex.getMessage());
+						// ex.printStackTrace();
+					}
+
+				}, null);
+
+		
+		return "redirect:/job-details/" + id +".html"; // quay ve detail
+	} 
+	
+	@RequestMapping("delete/{id}")
+	public String deleteJob(@PathVariable("id") String id) {
+		System.out.println("vao delete");
+		// delete voi id
+		LoginSignUpController.getSession(LoginSignUpController.loginMail, LoginSignUpController.loginPass,
+				(Session sess) -> {
+					Transaction transaction = sess.beginTransaction();
+					try {
+						Job job1 = new Job();
+						job1.setJobId(Integer.parseInt(id));
+						sess.delete(job1);
+						transaction.commit();
+
+					} catch (Exception ex) {
+						System.out.println("catch----------");
+						transaction.rollback();
+						System.err.println(ex.getMessage());
+						// ex.printStackTrace();
+					}
+
+				}, null);
+
+		
+		return "redirect:/jobs.html";
+	}
+
 
 	private void getFilter(Session session, ModelMap model) {
 		Query query = session.createSQLQuery("EXEC SP_CATFILLTER").addEntity(FilterSP.class);
