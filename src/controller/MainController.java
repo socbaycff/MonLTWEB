@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import javax.persistence.ParameterMode;
 import javax.persistence.StoredProcedureQuery;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.hibernate.Criteria;
 import org.hibernate.SQLQuery;
@@ -43,7 +44,8 @@ public class MainController {
 	}
 
 	@RequestMapping("jobs")
-	public String jobs(ModelMap model) {
+	public String jobs(ModelMap model, HttpServletResponse response) {
+		
 		System.out.println("job list");
 		LoginSignUpController.getSession(LoginSignUpController.loginMail, LoginSignUpController.loginPass,
 				(Session sess) -> {
