@@ -5,15 +5,20 @@ import java.util.List;
 
 import javax.persistence.ParameterMode;
 import javax.persistence.StoredProcedureQuery;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.query.Query;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.util.WebUtils;
 
 import entity.FilterSP;
 import entity.Job;
@@ -21,44 +26,76 @@ import entity.User;
 import utils.ErrorHandler;
 import utils.SQLHandler;
 
+
+import java.security.SecureRandom;
+import java.util.Base64;
+
 @Controller
 public class LoginSignUpController {
-	public static String loginMail;
-	public static String loginPass;
-	public static String username;
-	public static String role;
+
+	
+	  private static final SecureRandom secureRandom = new SecureRandom(); //threadsafe
+	  private static final Base64.Encoder base64Encoder = Base64.getUrlEncoder(); //threadsafe
+
+	    public static String generateNewToken() {
+	        byte[] randomBytes = new byte[24];
+	        secureRandom.nextBytes(randomBytes);
+	        return base64Encoder.encodeToString(randomBytes);
+	    }
+	
 	@RequestMapping("login")
 	public String login() {
-
 		System.out.print("vao login");
 		return "login/login";
 	}
-	static boolean isSuccess = true;
+	
+	@RequestMapping("signout")
+	public String signout(HttpServletRequest request,HttpServletResponse response) {
+		System.out.print("vao signout");
+		Cookie cookie = WebUtils.getCookie(request, "token");
+		cookie.setMaxAge(0);
+		response.addCookie(cookie);
+		return "login/login";
+	}
+	
+	//  isSuccess = true;
 	@RequestMapping(value = "login", method = RequestMethod.POST)
-	public String loginPost(@RequestParam("pass") String pass, @RequestParam("email") String email, ModelMap model) {
+	public String loginPost(@RequestParam("pass") String pass, @RequestParam("email") String email, ModelMap model, HttpServletResponse respone) {
 		System.out.println("postlogin");
 		System.out.println(pass);
 		System.out.println(email);
-		loginMail = email;
-		loginPass = pass;
-		isSuccess = true;
-		getSession(loginMail, loginPass, (Session session)-> {
+		
+		boolean[] isSuccess = {true};
+		String[] token = {""};
+		getSession(email, pass, (Session session)-> {
 			StoredProcedureQuery query = session.createStoredProcedureQuery( "SP_DANGNHAP");
 			query.registerStoredProcedureParameter( 1, String.class, ParameterMode.IN);
 			query.setParameter(1, email);
 			List<Object[]> resultLists = query.getResultList();
 			for (Object[] item : resultLists) {
-				username = item[0].toString();
-				role = item[1].toString();
+//				username = item[0].toString();
+//				role = item[1].toString();
 			}
 			
 		}, () -> {
-			isSuccess = false;
+			isSuccess[0] = false;
 		});
-		if (isSuccess) {
-			// gui thong tin user da login
-			System.out.println(username);
-			System.out.println(role);
+		if (isSuccess[0]) {
+			
+			// luu vao cookie token
+			getSession("sa", "1234", (Session sess)-> {
+				System.out.println("vao day");
+				Query query = sess.createSQLQuery("SELECT Token FROM UserLogin WHERE Email = '" + email + "'");
+				List<Object[]> list =  query.list();
+				token[0] = String.valueOf(list.get(0));
+				Cookie cookie = new Cookie("token", token[0]);	
+				respone.addCookie(cookie);
+				System.out.println(token[0]);
+			}, null);
+			
+//			System.out.println(username);
+//			System.out.println(role);
+		
 			return "redirect:/index.html";
 			
 		} else {
@@ -88,15 +125,17 @@ public class LoginSignUpController {
 			query.registerStoredProcedureParameter( 2, String.class, ParameterMode.IN);
 			query.registerStoredProcedureParameter( 3, String.class, ParameterMode.IN);
 			query.registerStoredProcedureParameter( 4, String.class, ParameterMode.IN);
+			query.registerStoredProcedureParameter( 5, String.class, ParameterMode.IN);
 			query.setParameter(1, email);
 			query.setParameter(2, pass);
 			query.setParameter(3, username);
+			
 			if (isComp) {
 				query.setParameter(4, "Company");
 			} else {
 				query.setParameter(4, "User");
 			}
-			
+			query.setParameter(5, generateNewToken());
 			boolean isSuccess = query.execute();
 			
 		},null);

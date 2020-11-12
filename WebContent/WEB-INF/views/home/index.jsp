@@ -65,7 +65,7 @@
 						</c:if>
 							<li class="nav-item active">${username}</li>
 						<li class="nav-item active"><a class="nav-link"
-							href="login.html">Sign Out</a></li>
+							href="signout.html">Sign Out</a></li>
 
 						<!--               <li class="nav-item dropdown">
                   <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">About</a>

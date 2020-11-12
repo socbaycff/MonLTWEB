@@ -27,8 +27,19 @@
 <link rel="stylesheet" href="assets/css/owl.css">
 <link rel="icon" href="assets/icons/icon.png" type="image/png"
 	sizes="32x32">
+	<base href="${pageContext.servletContext.contextPath}/">
 </head>
+<style>
+img {
+    display: block;
+    max-width:350px;
+    max-height:320px;
+    width: auto;
+    height: auto;
+}
 
+
+</style>
 <body>
 
 	<!-- ***** Preloader Start ***** -->
@@ -66,7 +77,7 @@
 						</c:if>
 						<li class="nav-item active">${username}</li>
 						<li class="nav-item active"><a class="nav-link"
-							href="login.html">Sign Out</a></li>
+							href="signout.html">Sign Out</a></li>
 						<!--               <li class="nav-item dropdown">
                   <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">About</a>
                   
@@ -180,7 +191,7 @@
 								<div class="col-sm-6">
 									<div class="blog-post">
 										<div class="blog-thumb">
-											<img src="assets/images/product-1-720x480.jpg" alt="">
+											<img width="800" height="600" src="uploads/${job.jobId}" alt="">
 										</div>
 										<div class="down-content">
 											<span>${job.luong} VND</span> <a

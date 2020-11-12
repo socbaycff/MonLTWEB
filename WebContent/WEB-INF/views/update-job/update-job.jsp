@@ -73,7 +73,7 @@
 						<li class="nav-item active"><a class="nav-link"
 							href="job-add.html">Add Job</a></li>
 						<li class="nav-item active"><a class="nav-link"
-							href="login.html">Sign Out</a></li>
+							href="signout.html">Sign Out</a></li>
 					</ul>
 				</div>
 			</div>
@@ -239,7 +239,7 @@
 				<div class="col-lg-12">
 					<div class="copyright-text">
 						<p>
-							Copyright © 2020 Company Name | Template by: <a
+							Copyright ï¿½ 2020 Company Name | Template by: <a
 								href="https://www.phpjabbers.com/">PHPJabbers.com</a>
 						</p>
 					</div>

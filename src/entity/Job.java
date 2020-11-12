@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Transient;
 
 
 
@@ -22,6 +23,8 @@ public class Job {
 	private Integer EducationLV;
 	private Integer ExpYear;
 	private BigInteger Luong;
+	@Transient
+	private String imgPath;
 	
 	
 	public Job(String title, String description, String category, Integer educationLV, Integer expYear,
@@ -45,6 +48,15 @@ public class Job {
 		EducationLV = educationLV;
 		ExpYear = expYear;
 		Luong = luong;
+	}
+	
+	
+	
+	public String getImgPath() {
+		return imgPath;
+	}
+	public void setImgPath(String imgPath) {
+		this.imgPath = imgPath;
 	}
 	public BigInteger getLuong() {
 		return Luong;

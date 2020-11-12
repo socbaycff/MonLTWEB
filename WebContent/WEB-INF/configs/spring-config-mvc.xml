@@ -22,15 +22,23 @@
 	<bean id="viewResolver" p:prefix="/WEB-INF/views/" p:suffix=".jsp"
 		class="org.springframework.web.servlet.view.InternalResourceViewResolver" />
 
+<mvc:interceptors>
+		<mvc:interceptor>
+			<mvc:mapping path="/**" />
+			<mvc:exclude-mapping path="/signup.html" />
+			<mvc:exclude-mapping path="/login.html" />
+			<bean class="interceptors.SecurityInterceptor" />
+		</mvc:interceptor>
 
+	</mvc:interceptors>
 
-<!-- 	<bean id="multipartResolver"
+	<bean id="multipartResolver"
 		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
-		maxUploadSize=20MB
+		
 		<property name="maxUploadSize" value="20971520" />
 	</bean>
 
-	<bean id="mailSender"
+<!--	<bean id="mailSender"
 		class="org.springframework.mail.javamail.JavaMailSenderImpl">
 		<property name="host" value="smtp.gmail.com" />
 		<property name="port" value="465" />
@@ -49,6 +57,8 @@
 			</props>
 		</property>
 	</bean> -->
+
+	
 
 	<!-- Cấu hình package chứa các controller -->
 	<context:component-scan
