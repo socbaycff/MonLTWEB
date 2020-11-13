@@ -11,7 +11,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.query.NativeQuery;
 import org.hibernate.query.Query;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.util.WebUtils;
 
+import entity.Company;
 import entity.FilterSP;
 import entity.Job;
 import entity.User;
@@ -113,7 +116,7 @@ public class LoginSignUpController {
 	}
 
 	@RequestMapping(value = "signup", method = RequestMethod.POST)
-	public String signupPost(ModelMap model,@RequestParam("pass") String pass, @RequestParam("email") String email, @RequestParam("username") String username,@RequestParam(value = "isComp", defaultValue = "false") boolean isComp) {
+	public String signupPost(HttpServletRequest request, ModelMap model,@RequestParam("pass") String pass, @RequestParam("email") String email, @RequestParam("username") String username,@RequestParam(value = "isComp", defaultValue = "false") boolean isComp) {
 		System.out.println("sign up post");
 		System.out.println(pass);
 		System.out.println(email);
@@ -132,12 +135,24 @@ public class LoginSignUpController {
 			
 			if (isComp) {
 				query.setParameter(4, "Company");
+
 			} else {
 				query.setParameter(4, "User");
 			}
 			query.setParameter(5, generateNewToken());
-			boolean isSuccess = query.execute();
+			query.execute();
 			
+			// ket noi compid
+			if (isComp) {
+				String location = request.getParameter("location");
+				String description = request.getParameter("description");
+				Company company = new Company(location, description);
+				session.save(company);
+				Transaction transaction = session.beginTransaction();
+				session.createSQLQuery("UPDATE UserLogin SET CompId = "+ company.getCompId()+" WHERE Email = '"+email+"'").executeUpdate();
+				transaction.commit();
+				
+			}
 		},null);
 		return "login/login";
 	}
@@ -170,6 +185,7 @@ public class LoginSignUpController {
 		config.addAnnotatedClass(User.class);
 		config.addAnnotatedClass(Job.class);
 		config.addAnnotatedClass(FilterSP.class);
+		config.addAnnotatedClass(Company.class);
 
 		try {
 			

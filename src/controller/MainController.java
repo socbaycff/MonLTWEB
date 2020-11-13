@@ -162,12 +162,17 @@ public class MainController {
 	}
 
 	@RequestMapping("job-details/{id}")
-	public String detail(@PathVariable("id") String id, ModelMap model) {
+	public String detail(@PathVariable("id") String id, ModelMap model, @CookieValue("token") String token) {
 		System.out.println("detail with path variable");
 		// truy van voi id de nap vao detail
 		LoginSignUpController.getSession("sa", "1234", (Session sess) -> {
+			Query query = sess.createSQLQuery("SELECT UserId FROM UserLogin WHERE Token = '"+token +"' ");
+			//List<Object[]> list = query.list();
+			
 			Job job = sess.get(Job.class, Integer.parseInt(id));
 			model.addAttribute("job", job);
+			int userId = (int) query.list().get(0);
+			model.addAttribute("isEditable", userId == job.getOwnerId()); // cho phep edit khi la nguoi update bind vao bat tat hien nut edit job
 		}, null);
 
 		return "job-details/job-details";
@@ -190,7 +195,7 @@ public class MainController {
 			Transaction transaction = sess.beginTransaction();
 			try {
 				Job job1 = new Job(job.getTitle(), job.getDescription(), job.getCategory(), job.getEducationLV(),
-						job.getExpYear(), new BigInteger(luongStr));
+						job.getExpYear(), new BigInteger(luongStr),1);
 				sess.save(job1);// luu db
 				lastId[0] = ((BigDecimal) sess.createSQLQuery("SELECT IDENT_CURRENT('Job')").list().get(0)).intValue();
 
@@ -232,7 +237,6 @@ public class MainController {
 
 		LoginSignUpController.getSession("sa", "1234", (Session sess) -> {
 			Job job = sess.get(Job.class, Integer.parseInt(id));
-			model.addAttribute("job", job);
 		}, null);
 
 		return "update-job/update-job";
@@ -246,7 +250,7 @@ public class MainController {
 			Transaction transaction = sess.beginTransaction();
 			try {
 				Job job1 = new Job(job.getTitle(), job.getDescription(), job.getCategory(), job.getEducationLV(),
-						job.getExpYear(), new BigInteger(luongStr));
+						job.getExpYear(), new BigInteger(luongStr),1);
 				job1.setJobId(Integer.parseInt(id));
 				sess.update(job1);
 				transaction.commit();

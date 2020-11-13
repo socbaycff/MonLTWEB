@@ -23,23 +23,20 @@ public class Job {
 	private Integer EducationLV;
 	private Integer ExpYear;
 	private BigInteger Luong;
-	@Transient
-	private String imgPath;
+	private Integer OwnerId;
+
 	
 	
-	public Job(String title, String description, String category, Integer educationLV, Integer expYear,
-			BigInteger luong) {
-		super();
-		Title = title;
-		Description = description;
-		Category = category;
-		EducationLV = educationLV;
-		ExpYear = expYear;
-		Luong = luong;
+	
+	public Integer getOwnerId() {
+		return OwnerId;
 	}
-	public Job() {}
+	public void setOwnerId(Integer ownerId) {
+		OwnerId = ownerId;
+	}
+	
 	public Job(Integer jobId, String title, String description, String category, Integer educationLV, Integer expYear,
-			BigInteger luong) {
+			BigInteger luong, Integer ownerId) {
 		super();
 		JobId = jobId;
 		Title = title;
@@ -48,15 +45,21 @@ public class Job {
 		EducationLV = educationLV;
 		ExpYear = expYear;
 		Luong = luong;
+		OwnerId = ownerId;
 	}
+	public Job() {}
+
 	
-	
-	
-	public String getImgPath() {
-		return imgPath;
-	}
-	public void setImgPath(String imgPath) {
-		this.imgPath = imgPath;
+	public Job(String title, String description, String category, Integer educationLV, Integer expYear,
+			BigInteger luong, Integer ownerId) {
+		super();
+		Title = title;
+		Description = description;
+		Category = category;
+		EducationLV = educationLV;
+		ExpYear = expYear;
+		Luong = luong;
+		OwnerId = ownerId;
 	}
 	public BigInteger getLuong() {
 		return Luong;
