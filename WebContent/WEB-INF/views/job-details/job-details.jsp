@@ -104,7 +104,7 @@
 			<div class="row">
 				<div class="col-md-4">
 					<div>
-						<img src="assets/images/product-1-720x480.jpg" alt="" class="img-fluid wc-image">
+						<img src="uploads/${job.jobId}" width="800" height="600" alt="" class="img-fluid wc-image">
 					</div>
 
 					<br>
@@ -114,7 +114,7 @@
 					<div class="sidebar-item recent-posts">
 						<div class="sidebar-heading">
 							<h2>
-								<i class="fa fa-map-marker"></i> London &nbsp;&nbsp; <i class="fa fa-calendar"></i>
+								<i class="fa fa-map-marker"></i> ${location} &nbsp;&nbsp; <i class="fa fa-calendar"></i>
 								20-06-2020 &nbsp;&nbsp; <i class="fa fa-file"></i> Contract
 							</h2>
 						</div>
@@ -171,17 +171,17 @@
 				<div class="col-lg-8">
 					<div class="sidebar-item recent-posts">
 						<div class="sidebar-heading">
-							<h2>About Cannon Guards Security ltd</h2>
+							<h2>About ${comp_name}</h2>
 						</div>
 
 						<div class="content">
 							<p class="lead">
-								<i class="fa fa-map-marker"></i> London
+								<i class="fa fa-map-marker"></i> ${location}
 							</p>
 
 							<br>
 
-							<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit.
+							<!-- <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit.
 								Suscipit rerum obcaecati aspernatur qui molestias voluptatibus
 								odit placeat. Ipsa, nisi, quod?</p>
 
@@ -192,13 +192,9 @@
 								dolores, asperiores deserunt ex porro provident similique eius
 								repellat error modi dignissimos doloribus.</p>
 
-							<br>
+							<br> -->
 
-							<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-								Corporis incidunt, quibusibus molestiae! Porro dicta fugit
-								magnam quod atque soluta voluptate voluptatum, mollitia
-								praesentium provident. Quibusdam quisquam minima, accusantium
-								nulla, deserunt recusandae doloribus quam illum, ex eaque ipsam!</p>
+							<p>${description}</p>
 
 							<br>
 						</div>
@@ -208,27 +204,27 @@
 				<div class="col-lg-4">
 					<div class="sidebar-item recent-posts">
 						<div class="sidebar-heading">
-							<h2>Contact Details</h2>
+							<h2>Company Infomation</h2>
 						</div>
 
 						<div class="content">
 							<p>
-								<span>Name</span> <br> <strong>John Smith</strong>
+								<span>Name</span> <br> <strong>${comp_name}</strong>
 							</p>
 
 							<p>
-								<span>Phone</span> <br> <strong> <a href="tel:123-456-789">123-456-789</a>
+								<span>Phone</span> <br> <strong> <a href="${phone}">${phone}</a>
 								</strong>
 							</p>
 
-							<p>
+							<!-- <p>
 								<span>Mobile phone</span> <br> <strong> <a href="tel:456789123">456789123</a>
 								</strong>
-							</p>
+							</p> -->
 
 							<p>
 								<span>Email</span> <br> <strong> <a
-										href="mailto:john@carsales.com">john@carsales.com</a>
+										href="mailto:${email}">${email}</a>
 								</strong>
 							</p>
 

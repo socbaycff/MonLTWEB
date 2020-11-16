@@ -37,27 +37,22 @@
 						<li class="active">
 							<div class="form">
 								<form action="signup.html" method="post">
-									<input required type="text" class="active textbox" name="username"
-										placeholder="User Name" onfocus="this.value = '';"
-										onblur="if (this.value == '') {this.value = 'User Name';}">
-									<input required type="text" class="textbox" name="email" placeholder="Email Address"
-										onfocus="this.value = '';"
-										onblur="if (this.value == '') {this.value = 'Email Address';}">
-									<input required type="password" class="textbox" name="pass" placeholder="Password"
-										onfocus="this.value = '';"
-										onblur="if (this.value == '') {this.value = 'Password';}">
+									<input required type="text" class="active textbox" name="username" placeholder="User Name">
+									<input required type="text" class="textbox" name="email" placeholder="Email Address">
+									<input required type="password" class="textbox" name="pass" placeholder="Password">
 									<div>
 										<label> <input id="companyCheck" onclick="checkEvent()" type="checkbox"
 												name="isComp"> <span>Company Account</span>
 										</label>
 									</div>
+									<input id="name" hidden="true" type="text" class="active textbox" name="name"
+										placeholder="Company Name"" style="display:none;">
 									<input id="loca" hidden="true" type="text" class="active textbox" name="location"
-										placeholder="Location""
-										onfocus=" this.value='' ;" onblur="if (this.value == '') {this.value = 'User Name';}" style="display:none;">
+										placeholder="Location" style="display:none;">
 									<input id="desc" hidden="true" type="text" class="active textbox" name="description"
-										placeholder="Description" onfocus="this.value = '';"
-										onblur="if (this.value == '') {this.value = 'User Name';}"
-										style="display:none;">
+										placeholder="Description" style="display:none;">									
+									<input id="phone" hidden="true" type="number" class="active textbox" name="phone"
+										placeholder="Phone" style="display:none;">
 
 									<input type="submit" value="Register">
 								</form>
@@ -90,11 +85,19 @@
 			document.getElementById('loca').required = true
 			document.getElementById('desc').style.display = "block"
 			document.getElementById('desc').required = true
+			document.getElementById('phone').style.display = "block"
+			document.getElementById('phone').required = true
+			document.getElementById('name').style.display = "block"
+			document.getElementById('name').required = true
 		} else {
 			document.getElementById('loca').style.display = "none"
 			document.getElementById('loca').required = false
 			document.getElementById('desc').style.display = "none"
 			document.getElementById('desc').required = false
+			document.getElementById('phone').style.display = "none"
+			document.getElementById('phone').required = false
+			document.getElementById('name').style.display = "none"
+			document.getElementById('name').required = false
 		}
 	}
 

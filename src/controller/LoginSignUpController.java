@@ -146,7 +146,9 @@ public class LoginSignUpController {
 			if (isComp) {
 				String location = request.getParameter("location");
 				String description = request.getParameter("description");
-				Company company = new Company(location, description);
+				String phone = request.getParameter("phone");
+				String name = request.getParameter("name");
+				Company company = new Company(location, description,name,phone);
 				session.save(company);
 				Transaction transaction = session.beginTransaction();
 				session.createSQLQuery("UPDATE UserLogin SET CompId = "+ company.getCompId()+" WHERE Email = '"+email+"'").executeUpdate();
@@ -177,10 +179,10 @@ public class LoginSignUpController {
 	public static void getSession(String login, String pass, SQLHandler handler, ErrorHandler onError) {
 		Configuration config = new Configuration();
 		config.setProperty("hibernate.connection.driver_class", "com.microsoft.sqlserver.jdbc.SQLServerDriver");
-		config.setProperty("hibernate.connection.url", "jdbc:sqlserver://localhost:51254;Database=Recruitment");
+		config.setProperty("hibernate.connection.url", "jdbc:sqlserver://localhost:51254;Database=Recruitment;characterEncoding=UTF-8");
 		config.setProperty("hibernate.connection.username", login);
 		config.setProperty("hibernate.connection.password", pass);
-		config.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
+		config.setProperty("hibernate.dialect", "org.hibernate.dialect.SQLServerDialect");
 
 		config.addAnnotatedClass(User.class);
 		config.addAnnotatedClass(Job.class);

@@ -50,10 +50,20 @@ public class MainController {
 	public String index(ModelMap model, @CookieValue(value = "token") String token) {
 		// lay username role tu db bang token
 		LoginSignUpController.getSession("sa", "1234", (Session sess) -> {
+			// truy van username role
 			Query query = sess.createSQLQuery("SELECT Username, Role FROM UserLogin WHERE Token = '" + token + "'");
 			List<Object[]> list = query.list();
 			model.addAttribute("username", String.valueOf(list.get(0)[0]));
 			model.addAttribute("role", String.valueOf(list.get(0)[1]));
+			// truy van job theo thu tu add sau cung
+			Query newJobQuery = sess.createQuery("FROM Job J ORDER BY J.JobId DESC");	
+			List<Job> newJobsList = newJobQuery.setMaxResults(5).list();
+			model.addAttribute("newJobs", newJobsList);
+			// truy van random job
+			Query randomJobQuery = sess.createQuery("FROM Job ORDER BY NEWID()");	
+			List<Job> randomJobsList = randomJobQuery.setMaxResults(3).list();
+			model.addAttribute("randomJobs", randomJobsList);
+		
 		}, null);
 		return "home/index";
 	}
@@ -166,13 +176,19 @@ public class MainController {
 		System.out.println("detail with path variable");
 		// truy van voi id de nap vao detail
 		LoginSignUpController.getSession("sa", "1234", (Session sess) -> {
-			Query query = sess.createSQLQuery("SELECT UserId FROM UserLogin WHERE Token = '"+token +"' ");
-			//List<Object[]> list = query.list();
-			
 			Job job = sess.get(Job.class, Integer.parseInt(id));
 			model.addAttribute("job", job);
-			int userId = (int) query.list().get(0);
-			model.addAttribute("isEditable", userId == job.getOwnerId()); // cho phep edit khi la nguoi update bind vao bat tat hien nut edit job
+			Query compQuery = sess.createSQLQuery(
+					"SELECT UserId, Email, Location, Description,Name,Phone FROM UserLogin U, Company C WHERE Token = '"
+							+ token + "' AND U.CompId = C.CompId");
+			List<Object[]> list = compQuery.list();
+			int userId = (int) list.get(0)[0];
+			model.addAttribute("isEditable", userId == job.getOwnerId());
+			model.addAttribute("email", list.get(0)[1]);
+			model.addAttribute("location", list.get(0)[2]);
+			model.addAttribute("description", list.get(0)[3]);
+			model.addAttribute("comp_name", list.get(0)[4]);
+			model.addAttribute("phone", list.get(0)[5]);
 		}, null);
 
 		return "job-details/job-details";
@@ -185,17 +201,21 @@ public class MainController {
 
 	@RequestMapping(value = "job-add", method = RequestMethod.POST)
 	public String addJobPost(Job job, ModelMap model, @RequestParam("Luong") String luongStr,
-			@RequestParam("minhhoa") MultipartFile minhHoa) throws IllegalStateException, IOException {
+			@RequestParam("minhhoa") MultipartFile minhHoa, @CookieValue("token") String token)
+			throws IllegalStateException, IOException {
 		// System.out.println(luongStr);
 		System.out.println(minhHoa.getOriginalFilename());
 		System.out.println("job add post");
 		int jobid = 0;
 		int lastId[] = { 0 };
 		LoginSignUpController.getSession("sa", "1234", (Session sess) -> {
+			// get user id
+			int userId = (int) sess.createSQLQuery("SELECT UserId FROM UserLogin WHERE Token = '" + token + "'").list()
+					.get(0);
 			Transaction transaction = sess.beginTransaction();
 			try {
 				Job job1 = new Job(job.getTitle(), job.getDescription(), job.getCategory(), job.getEducationLV(),
-						job.getExpYear(), new BigInteger(luongStr),1);
+						job.getExpYear(), new BigInteger(luongStr), userId);
 				sess.save(job1);// luu db
 				lastId[0] = ((BigDecimal) sess.createSQLQuery("SELECT IDENT_CURRENT('Job')").list().get(0)).intValue();
 
@@ -204,8 +224,9 @@ public class MainController {
 			} catch (Exception ex) {
 				System.out.println("catch----------");
 				transaction.rollback();
-				System.err.println(ex.getMessage());
-				// ex.printStackTrace();
+				System.out.println(ex.getMessage());
+				
+				 ex.printStackTrace();
 			}
 
 		}, null);
@@ -229,28 +250,110 @@ public class MainController {
 		return "redirect:/jobs.html";
 	}
 
+	@RequestMapping("edit")
+	public String editProfile(@CookieValue("token") String token, ModelMap model) {
+		System.out.println("edit profile da vao");
+		// truy van
+		LoginSignUpController.getSession("sa", "1234", (Session sess) -> {
+			// truy van 2 lan
+			// lan dau truy van co ban
+			// lan 2 if la company thi truy van them company
+			Query query = sess
+					.createSQLQuery("SELECT Username, Email, CompId FROM UserLogin  WHERE Token = '" + token + "' ");
+			List<Object[]> list = query.list();
+			// truyen data voi
+			model.addAttribute("username", list.get(0)[0]);
+			model.addAttribute("email", list.get(0)[1]);
+
+			try {
+				int compId = (int) list.get(0)[2];
+				model.addAttribute("compId", compId); // add xuong de truyen lai cho post
+				Query query1 = sess
+						.createSQLQuery("SELECT Location, Description,Name,Phone FROM Company WHERE CompId =" + compId);
+				List<Object[]> list1 = query1.list();
+				model.addAttribute("location", list1.get(0)[0]);
+				model.addAttribute("description", list1.get(0)[1]);
+				model.addAttribute("comp_name", list1.get(0)[2]);
+				model.addAttribute("phone", list1.get(0)[3]);
+			} catch (Exception e) {
+				model.addAttribute("compId", 0); // khong phai acc company
+			}
+			
+
+		}, null);
+
+		;
+
+		return "edit-profile/edit-profile";
+	}
+
+	@RequestMapping(value = "edit", method = RequestMethod.POST)
+	public String editProfilePost(@CookieValue("token") String token, ModelMap model, HttpServletRequest request) {
+		System.out.println("edit profile da vao");
+		// nhan dc data moi va save
+		// 2 flow cho 2 loai acc
+		System.out.println("test post");
+
+
+		
+		
+		LoginSignUpController.getSession("sa", "1234", (Session sess) -> {
+			Transaction transaction = sess.beginTransaction();
+			try {
+				String username = request.getParameter("username");
+				String email = request.getParameter("email");
+				String companyName = request.getParameter("comp_name");
+				Query query = sess.createSQLQuery("UPDATE UserLogin SET Username = '"+ username+"',Email = '"+email+"' WHERE Token = '"+token+"'");
+				query.executeUpdate();
+				if(companyName != null) {
+					String location = request.getParameter("location");
+					String phone = request.getParameter("phone");
+					String description = request.getParameter("description");
+					String compId = request.getParameter("compId");
+					Query query1 = sess.createSQLQuery("UPDATE Company SET Location = '"+location+"', Phone = '"+phone+"', Description = '"+description+"',Name = '"+companyName+"' WHERE CompId =" + compId);
+					query1.executeUpdate();
+					
+				}
+				transaction.commit();
+
+			} catch (Exception ex) {
+				System.out.println("catch----------");
+				transaction.rollback();
+				System.err.println(ex.getMessage());
+				// ex.printStackTrace();
+			}
+
+		}, null);
+		
+
+		return "redirect:/edit.html"; // van o trang nay k di dau
+	}
+
 	@RequestMapping("update/{id}")
 	public String updateJob(@PathVariable("id") String id, ModelMap model) {
 		System.out.println("update da vao");
 		System.out.println(id);
 		// doi lai truy van chu k dc dung cache
-
+		// chua truyen data xuong view
 		LoginSignUpController.getSession("sa", "1234", (Session sess) -> {
 			Job job = sess.get(Job.class, Integer.parseInt(id));
+			model.addAttribute("job", job);
 		}, null);
 
 		return "update-job/update-job";
 	}
 
 	@RequestMapping(value = "update/{id}", method = RequestMethod.POST)
-	public String updateSave(@PathVariable("id") String id, Job job, @RequestParam("Luong") String luongStr) {
+	public String updateSave(@PathVariable("id") String id, Job job, @RequestParam("Luong") String luongStr, @CookieValue("token") String token) {
 		System.out.println("vao update save");
 		// update bang hibernate
 		LoginSignUpController.getSession("sa", "1234", (Session sess) -> {
+			int userId = (int) sess.createSQLQuery("SELECT UserId FROM UserLogin WHERE Token = '" + token + "'").list()
+					.get(0);
 			Transaction transaction = sess.beginTransaction();
 			try {
 				Job job1 = new Job(job.getTitle(), job.getDescription(), job.getCategory(), job.getEducationLV(),
-						job.getExpYear(), new BigInteger(luongStr),1);
+						job.getExpYear(), new BigInteger(luongStr),userId);
 				job1.setJobId(Integer.parseInt(id));
 				sess.update(job1);
 				transaction.commit();
@@ -285,7 +388,7 @@ public class MainController {
 
 				String filePath = realPathtoUploads + String.valueOf(job1.getJobId());
 				File dest = new File(filePath);
-				
+
 				sess.delete(job1);
 				dest.delete();
 				transaction.commit();

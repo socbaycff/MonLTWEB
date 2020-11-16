@@ -12,18 +12,38 @@ public class Company {
 	private Integer CompId;
 	private String Location;
 	private String Description;
+	private String Name;
+	private String Phone;
+	
 	
 	public Company() {}
-	public Company(String location, String description) {
+	public Company(String location, String description,String name, String phone) {
 		super();
 		Location = location;
 		Description = description;
+		Name = name;
+		Phone = phone;
 	}
-	public Company(Integer compId, String location, String description) {
+	public Company(Integer compId, String location, String description, String name, String phone) {
 		super();
 		CompId = compId;
 		Location = location;
 		Description = description;
+		Name = name;
+		Phone = phone;
+	}
+	
+	public String getName() {
+		return Name;
+	}
+	public void setName(String name) {
+		Name = name;
+	}
+	public String getPhone() {
+		return Phone;
+	}
+	public void setPhone(String phone) {
+		Phone = phone;
 	}
 	public Integer getCompId() {
 		return CompId;
