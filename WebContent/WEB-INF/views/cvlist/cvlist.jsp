@@ -5,7 +5,7 @@
 <html lang="en">
 
 <head>
-	<base href="${pageContext.servletContext.contextPath}/">
+<base href="${pageContext.servletContext.contextPath}/">
 <meta charset="utf-8">
 <meta name="viewport"
 	content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -15,7 +15,7 @@
 	href="https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400,400i,500,500i,700,700i,900,900i&display=swap"
 	rel="stylesheet">
 
-<title>JOBS</title>
+<title>Danh sách CV ứng tuyển</title>
 
 <!-- Bootstrap core CSS -->
 <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -106,8 +106,8 @@ img {
 				<div class="row">
 					<div class="col-lg-12">
 						<div class="text-content">
-							<h4>Jobs</h4>
-							<h2>Choose the perfect job!</h2>
+							<h4>Danh sách CV Job</h4>
+							<h2>Danh sách CV các ứng viên!</h2>
 						</div>
 					</div>
 				</div>
@@ -121,7 +121,7 @@ img {
 		<div class="container">
 			<div class="all-blog-posts">
 				<div class="row">
-					<div class="col-md-4 col-xs-12">
+					<%-- <div class="col-md-4 col-xs-12">
 						<form action="jobs.html" method="post">
 							<h4 style="margin-bottom: 15px">Type</h4>
 
@@ -180,38 +180,37 @@ img {
 
 							<button type="submit" id="form-submit" class="main-button">Fill</button>
 						</form>
-					</div>
+					</div> --%>
 
 					<div class="col-md-8 col-xs-12">
 						<div class="row">
 							<!-- item bat dau -->
-							<c:forEach var="job" items="${jobs}">
+ 							<c:forEach var="cv" items="${cvs}">
 
 
 								<div class="col-sm-6">
 									<div class="blog-post">
-										<div class="blog-thumb">
-											<img width="800" height="600" src="uploads/${job.jobId}" alt="">
-										</div>
+										<%-- <div class="blog-thumb">
+											<img width="800" height="600" src="uploads/${cv.jobId}" alt="">
+										</div> --%>
 										<div class="down-content">
-											<span>${job.luong} VND</span> <a
-												href="job-details/${job.jobId}.html"><h4>${job.title}</h4></a>
-											<p>${job.description}</p>
+											<span>Email: ${cv[1]}</span> <a
+												href="cv-viewer/${cv[3] }/${cv[0]}.html"><h4>Ngày đăng: ${cv[2]}</h4></a>
+										<%-- 	<p>${job.description}</p> --%>
 											<div class="post-options">
 												<div class="row">
 													<div class="col-lg-12">
 														<ul class="post-tags">
 															<li><i class="fa fa-bullseye"></i></li>
-															<li><a href="job-details/${job.jobId}.html">View
-																	Job</a></li>
+															<li><a href="cvs/${cv[3] }/${cv[0]}" download= "${cv[1]}_cv.pdf">Tải xuống</a></li>
 														</ul>
 													</div>
 												</div>
 											</div>
 										</div>
 									</div>
-								</div>
-							</c:forEach>
+								</div> 
+							</c:forEach> 
 
 							<!-- item ket thuc -->
 						</div>

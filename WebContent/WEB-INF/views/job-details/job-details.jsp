@@ -4,26 +4,28 @@
 <html lang="en">
 
 <head>
-	<base href="${pageContext.servletContext.contextPath}/">
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-	<meta name="description" content="">
-	<meta name="author" content="">
-	<link
-		href="https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400,400i,500,500i,700,700i,900,900i&display=swap"
-		rel="stylesheet">
+<base href="${pageContext.servletContext.contextPath}/">
+<meta charset="utf-8">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="description" content="">
+<meta name="author" content="">
+<link
+	href="https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400,400i,500,500i,700,700i,900,900i&display=swap"
+	rel="stylesheet">
 
-	<title>JOB Detail</title>
+<title>JOB Detail</title>
 
-	<!-- Bootstrap core CSS -->
-	<link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+<!-- Bootstrap core CSS -->
+<link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 
 
-	<!-- Additional CSS Files -->
-	<link rel="stylesheet" href="assets/css/fontawesome.css">
-	<link rel="stylesheet" href="assets/css/style.css">
-	<link rel="stylesheet" href="assets/css/owl.css">
-	<link rel="icon" href="assets/icons/icon.png" type="image/png" sizes="32x32">
+<!-- Additional CSS Files -->
+<link rel="stylesheet" href="assets/css/fontawesome.css">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/owl.css">
+<link rel="icon" href="assets/icons/icon.png" type="image/png"
+	sizes="32x32">
 </head>
 
 <body>
@@ -47,19 +49,22 @@
 						Job Agency Website<em>.</em>
 					</h2>
 				</a>
-				<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive"
-					aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+				<button class="navbar-toggler" type="button" data-toggle="collapse"
+					data-target="#navbarResponsive" aria-controls="navbarResponsive"
+					aria-expanded="false" aria-label="Toggle navigation">
 					<span class="navbar-toggler-icon"></span>
 				</button>
 				<div class="collapse navbar-collapse" id="navbarResponsive">
 					<ul class="navbar-nav ml-auto">
 						<li class="nav-item"><a class="nav-link" href="index.html">Home
 								<span class="sr-only">(current)</span>
-							</a></li>
-						<li class="nav-item active"><a class="nav-link" href="jobs.html">Jobs</a></li>
+						</a></li>
+						<li class="nav-item active"><a class="nav-link"
+							href="jobs.html">Jobs</a></li>
 						<li class="nav-item"><a class="nav-link" href="job-add.html">Add
 								Job</a></li>
-						<li class="nav-item active"><a class="nav-link" href="signout.html">Sign Out</a></li>
+						<li class="nav-item active"><a class="nav-link"
+							href="signout.html">Sign Out</a></li>
 						<!--             <li class="nav-item dropdown">
                   <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">About</a>
                   
@@ -104,7 +109,8 @@
 			<div class="row">
 				<div class="col-md-4">
 					<div>
-						<img src="uploads/${job.jobId}" width="800" height="600" alt="" class="img-fluid wc-image">
+						<img src="uploads/${job.jobId}" width="800" height="600" alt=""
+							class="img-fluid wc-image">
 					</div>
 
 					<br>
@@ -114,8 +120,9 @@
 					<div class="sidebar-item recent-posts">
 						<div class="sidebar-heading">
 							<h2>
-								<i class="fa fa-map-marker"></i> ${location} &nbsp;&nbsp; <i class="fa fa-calendar"></i>
-								20-06-2020 &nbsp;&nbsp; <i class="fa fa-file"></i> Contract
+								<i class="fa fa-map-marker"></i> ${location} &nbsp;&nbsp; <i
+									class="fa fa-calendar"></i> 20-06-2020 &nbsp;&nbsp; <i
+									class="fa fa-file"></i> Contract
 							</h2>
 						</div>
 
@@ -133,7 +140,17 @@
 								</div>
 							</div>
 						</div>
+						
+						<div class="row">
+							<div class="col-sm-4">
+								<div class="main-button">
+									<a href="cvlist/${job.jobId}.html">Danh sách CV</a>
+								</div>
+							</div>
+						</div>
 					</c:if>
+
+
 
 
 					<br>
@@ -166,6 +183,24 @@
 
 				<br> <br>
 			</div>
+
+			<c:if test="${isAvailable == true}">
+				<form id="contact" action="job-details/${job.jobId}.html" method="post"
+					enctype="multipart/form-data">
+					<div class="row">
+
+						<input type="file" name="cvtuyendung" accept="application/pdf">
+
+						<div class="col-lg-12">
+							<fieldset>
+								<button type="submit" id="form-submit" class="main-button">Đăng CV</button>
+							</fieldset>
+						</div>
+					</div>
+				</form>
+
+
+			</c:if>
 
 			<div class="row">
 				<div class="col-lg-8">
@@ -213,7 +248,8 @@
 							</p>
 
 							<p>
-								<span>Phone</span> <br> <strong> <a href="${phone}">${phone}</a>
+								<span>Phone</span> <br> <strong> <a
+									href="${phone}">${phone}</a>
 								</strong>
 							</p>
 
@@ -224,13 +260,13 @@
 
 							<p>
 								<span>Email</span> <br> <strong> <a
-										href="mailto:${email}">${email}</a>
+									href="mailto:${email}">${email}</a>
 								</strong>
 							</p>
 
 							<p>
 								<span>Website</span> <br> <strong> <a
-										href="http://www.cannonguards.com/">http://www.cannonguards.com/</a>
+									href="http://www.cannonguards.com/">http://www.cannonguards.com/</a>
 								</strong>
 							</p>
 						</div>

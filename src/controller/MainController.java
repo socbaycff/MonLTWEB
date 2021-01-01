@@ -56,14 +56,14 @@ public class MainController {
 			model.addAttribute("username", String.valueOf(list.get(0)[0]));
 			model.addAttribute("role", String.valueOf(list.get(0)[1]));
 			// truy van job theo thu tu add sau cung
-			Query newJobQuery = sess.createQuery("FROM Job J ORDER BY J.JobId DESC");	
+			Query newJobQuery = sess.createQuery("FROM Job J ORDER BY J.JobId DESC");
 			List<Job> newJobsList = newJobQuery.setMaxResults(5).list();
 			model.addAttribute("newJobs", newJobsList);
 			// truy van random job
-			Query randomJobQuery = sess.createQuery("FROM Job ORDER BY NEWID()");	
+			Query randomJobQuery = sess.createQuery("FROM Job ORDER BY NEWID()");
 			List<Job> randomJobsList = randomJobQuery.setMaxResults(3).list();
 			model.addAttribute("randomJobs", randomJobsList);
-		
+
 		}, null);
 		return "home/index";
 	}
@@ -170,6 +170,20 @@ public class MainController {
 
 		return "jobs/jobs";
 	}
+	
+	@RequestMapping("cv-viewer/{jid}/{uid}")
+	public String detail(@PathVariable("jid") String jobId,@PathVariable("uid") String userId, ModelMap model, @CookieValue("token") String token) {
+		System.out.println("vao cv viewer");
+		// truy van voi id de nap vao detail
+		LoginSignUpController.getSession("sa", "1234", (Session sess) -> { 
+			Query query = sess.createSQLQuery("SELECT Email FROM UserLogin WHERE Token = '" + token + "'");
+			List<String> list = query.list();
+			model.addAttribute("email", list.get(0));
+		}, null);
+		model.addAttribute("jobid", jobId);
+		model.addAttribute("uid", userId);
+		return "cv-viewer/cv-viewer";
+	}
 
 	@RequestMapping("job-details/{id}")
 	public String detail(@PathVariable("id") String id, ModelMap model, @CookieValue("token") String token) {
@@ -178,19 +192,83 @@ public class MainController {
 		LoginSignUpController.getSession("sa", "1234", (Session sess) -> {
 			Job job = sess.get(Job.class, Integer.parseInt(id));
 			model.addAttribute("job", job);
+			// truy van username role
+			Query query = sess.createSQLQuery("SELECT UserId, Role FROM UserLogin WHERE Token = '" + token + "'");
+			List<Object[]> list1 = query.list();
+			
+			int userId = (int) list1.get(0)[0];
+			boolean isAvail = String.valueOf(list1.get(0)[1]).equals("User");
+			if (isAvail == true) {
+				System.out.println("Day la user");
+
+			} else {
+				System.out.println("khong la user");
+
+			}
+			model.addAttribute("isAvailable", isAvail); // neu quyen User thi dc 
+			// check da dang cv chua
+			Query checkExist = sess.createSQLQuery("SELECT UserId FROM ApplyJob WHERE JobId = '" + id + "'");
+			List<Integer> list2 = checkExist.list();
+			if (list2.size() != 0 ? false : true) {
+				System.out.println("da dang tuyen");
+				
+			}
+			model.addAttribute("uploaded", list2.size() == 0 ? false : true);
+			
 			Query compQuery = sess.createSQLQuery(
-					"SELECT UserId, Email, Location, Description,Name,Phone FROM UserLogin U, Company C WHERE Token = '"
-							+ token + "' AND U.CompId = C.CompId");
+					"SELECT UserId, Email, Location, C.Description,Name,Phone FROM Job J, Company C, UserLogin U WHERE JobId = "+ id +"  AND J.OwnerId = U.UserId AND U.CompId = C.CompId");
 			List<Object[]> list = compQuery.list();
-			int userId = (int) list.get(0)[0];
-			model.addAttribute("isEditable", userId == job.getOwnerId());
+		
+			model.addAttribute("isEditable", !isAvail);
 			model.addAttribute("email", list.get(0)[1]);
 			model.addAttribute("location", list.get(0)[2]);
 			model.addAttribute("description", list.get(0)[3]);
 			model.addAttribute("comp_name", list.get(0)[4]);
 			model.addAttribute("phone", list.get(0)[5]);
+
 		}, null);
 
+		return "job-details/job-details";
+	}
+	
+	@RequestMapping(value = "job-details/{id}", method = RequestMethod.POST)
+	public String detailPostCV(@PathVariable("id") String id, ModelMap model, @CookieValue("token") String token,@RequestParam("cvtuyendung") MultipartFile cvpdf) throws IllegalStateException, IOException {
+		LoginSignUpController.getSession("sa", "1234", (Session sess) -> { 
+			Query query = sess.createSQLQuery("SELECT UserId FROM UserLogin WHERE Token = '" + token + "'");
+			List<Integer> list = query.list();
+			System.out.println("id user la " + list.get(0));
+			System.out.println("id job la " + id);
+			Transaction transaction = sess.beginTransaction();
+			Query insert = sess.createSQLQuery("INSERT INTO ApplyJob VALUES("+id +","+list.get(0)+",GETDATE())");
+			int executeUpdate = insert.executeUpdate();
+			transaction.commit();
+			if (!cvpdf.isEmpty() && executeUpdate != 0) {
+				String uploadsDir = "/cvs/" + id;
+				String realPathtoUploads = context.getRealPath(uploadsDir);
+				if (!new File(realPathtoUploads).exists()) {
+					new File(realPathtoUploads).mkdir();
+				}
+
+				System.out.println("realPathtoUploads = {}" + realPathtoUploads);
+
+				String orgName = String.valueOf(list.get(0)); // luu anh co ten la id cua job va id cua nguoi tuyen dung
+				String filePath = realPathtoUploads + "/"+ orgName;
+				System.out.println(filePath);
+				File dest = new File(filePath);
+				try {
+					cvpdf.transferTo(dest);
+				} catch (IllegalStateException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+			}
+		}, null);
+		
+		
 		return "job-details/job-details";
 	}
 
@@ -225,8 +303,8 @@ public class MainController {
 				System.out.println("catch----------");
 				transaction.rollback();
 				System.out.println(ex.getMessage());
-				
-				 ex.printStackTrace();
+
+				ex.printStackTrace();
 			}
 
 		}, null);
@@ -238,7 +316,7 @@ public class MainController {
 				new File(realPathtoUploads).mkdir();
 			}
 
-			// System.out.println("realPathtoUploads = {}"+ realPathtoUploads);
+			System.out.println("realPathtoUploads = {}" + realPathtoUploads);
 
 			String orgName = String.valueOf(lastId[0]); // luu anh co ten la id cua job
 			String filePath = realPathtoUploads + orgName;
@@ -278,7 +356,6 @@ public class MainController {
 			} catch (Exception e) {
 				model.addAttribute("compId", 0); // khong phai acc company
 			}
-			
 
 		}, null);
 
@@ -294,25 +371,25 @@ public class MainController {
 		// 2 flow cho 2 loai acc
 		System.out.println("test post");
 
-
-		
-		
 		LoginSignUpController.getSession("sa", "1234", (Session sess) -> {
 			Transaction transaction = sess.beginTransaction();
 			try {
 				String username = request.getParameter("username");
 				String email = request.getParameter("email");
 				String companyName = request.getParameter("comp_name");
-				Query query = sess.createSQLQuery("UPDATE UserLogin SET Username = '"+ username+"',Email = '"+email+"' WHERE Token = '"+token+"'");
+				Query query = sess.createSQLQuery("UPDATE UserLogin SET Username = '" + username + "',Email = '" + email
+						+ "' WHERE Token = '" + token + "'");
 				query.executeUpdate();
-				if(companyName != null) {
+				if (companyName != null) {
 					String location = request.getParameter("location");
 					String phone = request.getParameter("phone");
 					String description = request.getParameter("description");
 					String compId = request.getParameter("compId");
-					Query query1 = sess.createSQLQuery("UPDATE Company SET Location = '"+location+"', Phone = '"+phone+"', Description = '"+description+"',Name = '"+companyName+"' WHERE CompId =" + compId);
+					Query query1 = sess.createSQLQuery(
+							"UPDATE Company SET Location = '" + location + "', Phone = '" + phone + "', Description = '"
+									+ description + "',Name = '" + companyName + "' WHERE CompId =" + compId);
 					query1.executeUpdate();
-					
+
 				}
 				transaction.commit();
 
@@ -324,9 +401,24 @@ public class MainController {
 			}
 
 		}, null);
-		
 
 		return "redirect:/edit.html"; // van o trang nay k di dau
+	}
+	
+	@RequestMapping("cvlist/{id}")
+	public String cvlist(@PathVariable("id") String id, ModelMap model) {
+		System.out.println("cvlist da vao");
+		System.out.println(id);
+
+		LoginSignUpController.getSession("sa", "1234", (Session sess) -> {
+			// lay danh sach email kem userid
+			Query query = sess
+					.createSQLQuery("select U.UserId, Email, ApplyTime, JobId from ApplyJob A, UserLogin U where JobId = "+id +" and U.UserId = A.UserId");
+			List<Object[]> list = query.list();
+			model.addAttribute("cvs", list);
+		}, null);
+
+		return "cvlist/cvlist";
 	}
 
 	@RequestMapping("update/{id}")
@@ -344,7 +436,8 @@ public class MainController {
 	}
 
 	@RequestMapping(value = "update/{id}", method = RequestMethod.POST)
-	public String updateSave(@PathVariable("id") String id, Job job, @RequestParam("Luong") String luongStr, @CookieValue("token") String token) {
+	public String updateSave(@PathVariable("id") String id, Job job, @RequestParam("Luong") String luongStr,
+			@CookieValue("token") String token) {
 		System.out.println("vao update save");
 		// update bang hibernate
 		LoginSignUpController.getSession("sa", "1234", (Session sess) -> {
@@ -353,7 +446,7 @@ public class MainController {
 			Transaction transaction = sess.beginTransaction();
 			try {
 				Job job1 = new Job(job.getTitle(), job.getDescription(), job.getCategory(), job.getEducationLV(),
-						job.getExpYear(), new BigInteger(luongStr),userId);
+						job.getExpYear(), new BigInteger(luongStr), userId);
 				job1.setJobId(Integer.parseInt(id));
 				sess.update(job1);
 				transaction.commit();
@@ -418,5 +511,10 @@ public class MainController {
 
 		List<FilterSP> expyears = query2.list();
 		model.addAttribute("expYear", expyears);
+	}
+	
+	public void checkCVFileUploaded(String jobId, int userId) {
+		
+		
 	}
 }

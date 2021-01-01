@@ -17,9 +17,11 @@ import org.hibernate.query.NativeQuery;
 import org.hibernate.query.Query;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.util.WebUtils;
 
 import entity.Company;
@@ -47,8 +49,9 @@ public class LoginSignUpController {
 	    }
 	
 	@RequestMapping("login")
-	public String login() {
-		System.out.print("vao login");
+	public String login(HttpServletRequest request) {
+		System.out.println("vao login");
+
 		return "login/login";
 	}
 	
@@ -63,7 +66,7 @@ public class LoginSignUpController {
 	
 	//  isSuccess = true;
 	@RequestMapping(value = "login", method = RequestMethod.POST)
-	public String loginPost(@RequestParam("pass") String pass, @RequestParam("email") String email, ModelMap model, HttpServletResponse respone) {
+	public String loginPost(@RequestParam("pass") String pass, @RequestParam("email") String email, ModelMap model, HttpServletResponse respone,RedirectAttributes redirectAttributes) {
 		System.out.println("postlogin");
 		System.out.println(pass);
 		System.out.println(email);
@@ -103,7 +106,8 @@ public class LoginSignUpController {
 			
 		} else {
 			// gui message model attribute la fail
-			model.addAttribute("errorMess", "Loi Dang Nhap");
+			model.addAttribute("errorMess", "Thông tin đăng nhập không chính xác");
+			System.out.println("loi dang nhap");
 			return "login/login";
 		}
 		
