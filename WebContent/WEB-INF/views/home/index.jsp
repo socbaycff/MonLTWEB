@@ -62,6 +62,9 @@
 						<c:if test="${role == 'Company'}">
 							<li class="nav-item"><a class="nav-link" href="job-add.html">Add Job</a></li>
 						</c:if>
+						<c:if test="${role == 'User'}">
+							<li class="nav-item"><a class="nav-link" href="fav-jobs.html">My Favourite Jobs</a></li>
+						</c:if>
 						<li class="nav-item active"> <a class="nav-link" href="edit.html">${username}</a></li>
 						<li class="nav-item active"><a class="nav-link" href="signout.html">Sign Out</a></li>
 

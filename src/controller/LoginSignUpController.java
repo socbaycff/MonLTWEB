@@ -25,12 +25,12 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.util.WebUtils;
 
 import entity.Company;
+import entity.FavouriteJob;
 import entity.FilterSP;
 import entity.Job;
 import entity.User;
 import utils.ErrorHandler;
 import utils.SQLHandler;
-
 
 import java.security.SecureRandom;
 import java.util.Base64;
@@ -192,6 +192,7 @@ public class LoginSignUpController {
 		config.addAnnotatedClass(Job.class);
 		config.addAnnotatedClass(FilterSP.class);
 		config.addAnnotatedClass(Company.class);
+		config.addAnnotatedClass(FavouriteJob.class);
 
 		try {
 			

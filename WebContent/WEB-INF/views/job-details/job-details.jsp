@@ -132,7 +132,7 @@
 					</div>
 
 					<br>
-					<c:if test="${isEditable == true}">
+					<c:if test="${isUser == false}">
 						<div class="row">
 							<div class="col-sm-4">
 								<div class="main-button">
@@ -140,7 +140,7 @@
 								</div>
 							</div>
 						</div>
-						
+
 						<div class="row">
 							<div class="col-sm-4">
 								<div class="main-button">
@@ -148,6 +148,35 @@
 								</div>
 							</div>
 						</div>
+					</c:if>
+
+					<c:if test="${isUser == true}">
+						<!--   -->
+						<c:choose>
+							<c:when test="${!favourite}">
+								<div class="row">
+									<div class="col-sm-4">
+										<div class="main-button">
+											<a href="addFavourite/${job.jobId}.html">Yêu thích</a>
+										</div>
+									</div>
+								</div>
+							</c:when>
+
+							<c:when test="${favourite}">
+								<div class="row">
+									<div class="col-sm-4">
+										<div class="main-button">
+											<a href="removeFavourite/${job.jobId}.html">Hủy yêu thích</a>
+										</div>
+									</div>
+								</div>
+							</c:when>
+
+						</c:choose>
+
+
+
 					</c:if>
 
 
@@ -184,20 +213,46 @@
 				<br> <br>
 			</div>
 
-			<c:if test="${isAvailable == true}">
-				<form id="contact" action="job-details/${job.jobId}.html" method="post"
-					enctype="multipart/form-data">
-					<div class="row">
+			<c:if test="${isUser == true}">
+				<c:choose>
+					<c:when test="${!uploaded}">
+						<form id="contact" action="postCV/${job.jobId}.html"
+							method="post" enctype="multipart/form-data">
+							<div class="row">
 
-						<input type="file" name="cvtuyendung" accept="application/pdf">
+								<input type="file" name="cvtuyendung" accept="application/pdf">
 
-						<div class="col-lg-12">
-							<fieldset>
-								<button type="submit" id="form-submit" class="main-button">Đăng CV</button>
-							</fieldset>
-						</div>
-					</div>
-				</form>
+								<div class="col-lg-12">
+									<fieldset>
+										<button type="submit" id="form-submit" class="main-button">Đăng
+											CV</button>
+									</fieldset>
+								</div>
+							</div>
+						</form>
+
+					</c:when>
+					
+						<c:when test="${uploaded}">
+						<form id="contact" action="removeCV/${job.jobId}.html"
+							method="post">
+							<div class="row">
+
+				
+
+								<div class="col-lg-12">
+									<fieldset>
+										<button type="submit" id="form-submit" class="main-button">Hủy CV</button>
+									</fieldset>
+								</div>
+							</div>
+						</form>
+
+					</c:when>
+
+
+				</c:choose>
+
 
 
 			</c:if>

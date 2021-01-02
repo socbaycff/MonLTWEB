@@ -190,36 +190,50 @@ public class MainController {
 		System.out.println("detail with path variable");
 		// truy van voi id de nap vao detail
 		LoginSignUpController.getSession("sa", "1234", (Session sess) -> {
+			// get thong tin job
 			Job job = sess.get(Job.class, Integer.parseInt(id));
 			model.addAttribute("job", job);
-			// truy van username role
+			
+			// truy van userid role
 			Query query = sess.createSQLQuery("SELECT UserId, Role FROM UserLogin WHERE Token = '" + token + "'");
 			List<Object[]> list1 = query.list();
 			
 			int userId = (int) list1.get(0)[0];
-			boolean isAvail = String.valueOf(list1.get(0)[1]).equals("User");
-			if (isAvail == true) {
+			boolean isUser = String.valueOf(list1.get(0)[1]).equals("User");
+			if (isUser == true) {
 				System.out.println("Day la user");
 
 			} else {
 				System.out.println("khong la user");
 
 			}
-			model.addAttribute("isAvailable", isAvail); // neu quyen User thi dc 
+			model.addAttribute("isUser", isUser); // neu quyen User thi dc add cv + danh favourite
 			// check da dang cv chua
 			Query checkExist = sess.createSQLQuery("SELECT UserId FROM ApplyJob WHERE JobId = '" + id + "'");
 			List<Integer> list2 = checkExist.list();
-			if (list2.size() != 0 ? false : true) {
+			if (list2.size() == 0 ? false : true) {
 				System.out.println("da dang tuyen");
-				
 			}
 			model.addAttribute("uploaded", list2.size() == 0 ? false : true);
 			
+			// check da add fav chua
+			Query checkFav = sess.createSQLQuery("SELECT UserId FROM FavouriteJob WHERE JobId = '" + id + "'");
+			List<Integer> list3 = checkFav.list();
+			if (list3.size() != 0 ? true : false) {
+				System.out.println("da add fav");
+				
+			} else {
+				
+				System.out.println("chua add");
+			}
+			model.addAttribute("favourite", list3.size() != 0 ? true : false);
+			
+			
+			
+			// gui thong tin company
 			Query compQuery = sess.createSQLQuery(
 					"SELECT UserId, Email, Location, C.Description,Name,Phone FROM Job J, Company C, UserLogin U WHERE JobId = "+ id +"  AND J.OwnerId = U.UserId AND U.CompId = C.CompId");
 			List<Object[]> list = compQuery.list();
-		
-			model.addAttribute("isEditable", !isAvail);
 			model.addAttribute("email", list.get(0)[1]);
 			model.addAttribute("location", list.get(0)[2]);
 			model.addAttribute("description", list.get(0)[3]);
@@ -231,8 +245,8 @@ public class MainController {
 		return "job-details/job-details";
 	}
 	
-	@RequestMapping(value = "job-details/{id}", method = RequestMethod.POST)
-	public String detailPostCV(@PathVariable("id") String id, ModelMap model, @CookieValue("token") String token,@RequestParam("cvtuyendung") MultipartFile cvpdf) throws IllegalStateException, IOException {
+	@RequestMapping(value = "postCV/{id}", method = RequestMethod.POST)
+	public String postCV(@PathVariable("id") String id, ModelMap model, @CookieValue("token") String token,@RequestParam("cvtuyendung") MultipartFile cvpdf) throws IllegalStateException, IOException {
 		LoginSignUpController.getSession("sa", "1234", (Session sess) -> { 
 			Query query = sess.createSQLQuery("SELECT UserId FROM UserLogin WHERE Token = '" + token + "'");
 			List<Integer> list = query.list();
@@ -269,7 +283,45 @@ public class MainController {
 		}, null);
 		
 		
-		return "job-details/job-details";
+		return "redirect:/job-details/"+ id +".html";
+	}
+	
+	@RequestMapping(value = "removeCV/{id}", method = RequestMethod.POST)
+	public String detailRemoveCV(@PathVariable("id") String id, @CookieValue("token") String token) throws IllegalStateException, IOException {
+		LoginSignUpController.getSession("sa", "1234", (Session sess) -> { 
+			Query query = sess.createSQLQuery("SELECT UserId FROM UserLogin WHERE Token = '" + token + "'");
+			List<Integer> list = query.list();
+			System.out.println("id user la " + list.get(0));
+			System.out.println("id job la " + id);
+			Transaction transaction = sess.beginTransaction();
+			Query insert = sess.createSQLQuery("DELETE FROM ApplyJob WHERE JobId = " + id + " AND UserId = " + list.get(0));
+			int executeUpdate = insert.executeUpdate();
+			transaction.commit();
+			if (executeUpdate != 0) {
+				String uploadsDir = "/cvs/" + id;
+				String realPathtoUploads = context.getRealPath(uploadsDir);
+				if (!new File(realPathtoUploads).exists()) {
+					new File(realPathtoUploads).mkdir();
+				}
+
+				System.out.println("realPathtoUploads = {}" + realPathtoUploads);
+
+				String orgName = String.valueOf(list.get(0)); // luu anh co ten la id cua job va id cua nguoi tuyen dung
+				String filePath = realPathtoUploads + "/"+ orgName;
+				System.out.println(filePath);
+				File dest = new File(filePath);
+				try {
+					dest.delete();
+				} catch (IllegalStateException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+			}
+		}, null);
+		
+		
+		return "redirect:/job-details/"+ id +".html";
 	}
 
 	@RequestMapping("job-add")
@@ -497,6 +549,75 @@ public class MainController {
 
 		return "redirect:/jobs.html";
 	}
+	
+	
+	@RequestMapping("addFavourite/{id}")
+	public String addFavourite(@PathVariable("id") String id, ModelMap model,@CookieValue("token") String token) {
+		System.out.println("add favourite da vao");
+	
+		LoginSignUpController.getSession("sa", "1234", (Session sess) -> {
+			// lay id user
+			Query query = sess.createSQLQuery("SELECT UserId FROM UserLogin WHERE Token = '" + token + "'");
+			List<Integer> list = query.list();
+			System.out.println("id user la " + list.get(0));
+			System.out.println("id job la " + id);
+			
+			// add favourite 
+			Transaction transaction = sess.beginTransaction();
+			Query insert = sess.createSQLQuery("INSERT INTO FavouriteJob VALUES("+id +","+list.get(0)+")");
+			int executeUpdate = insert.executeUpdate();
+			transaction.commit();
+		}, null);
+
+		return "redirect:/job-details/"+id+".html";
+	}
+	
+	@RequestMapping("removeFavourite/{id}")
+	public String removeFavourite(@PathVariable("id") String id, ModelMap model,@CookieValue("token") String token) {
+		System.out.println("remove favourite da vao");
+	
+		LoginSignUpController.getSession("sa", "1234", (Session sess) -> {
+			// lay id user
+			Query query = sess.createSQLQuery("SELECT UserId FROM UserLogin WHERE Token = '" + token + "'");
+			List<Integer> list = query.list();
+			System.out.println("id user la " + list.get(0));
+			System.out.println("id job la " + id);
+			
+			// add favourite 
+			Transaction transaction = sess.beginTransaction();
+			Query insert = sess.createSQLQuery("DELETE FROM FavouriteJob WHERE UserId = " + list.get(0) +" AND JobId = " + id);
+			int executeUpdate = insert.executeUpdate();
+			transaction.commit();
+		}, null);
+
+		return "redirect:/job-details/"+id+".html";
+	}
+	
+	@RequestMapping("fav-jobs")
+	public String favouriteJobs(ModelMap model, HttpServletResponse response, @CookieValue(value = "token") String token) {
+
+		System.out.println("job list");
+		LoginSignUpController.getSession("sa", "1234", (Session sess) -> {
+			
+		
+			Query userQuery = sess.createSQLQuery("SELECT Username, Role, UserId FROM UserLogin WHERE Token = '" + token + "'");
+			List<Object[]> userInfo = userQuery.list();
+			model.addAttribute("username", String.valueOf(userInfo.get(0)[0]));
+			model.addAttribute("role", String.valueOf(userInfo.get(0)[1]));
+			
+			Query favJobQuery = sess.createQuery("FROM Job J, FavouriteJob F WHERE J.JobId = F.JobId AND UserId = " + String.valueOf(userInfo.get(0)[2]));
+			List<Object[]> jobList = favJobQuery.list();
+			
+			List<Job> favJobs = new ArrayList<Job>();
+			for (Object[] j : jobList) {
+				favJobs.add(((Job) j[0]));		 // lay job only
+			}
+			//getFilter(sess, model); // chua lam filter job
+			model.addAttribute("jobs", favJobs);
+		}, null);
+
+		return "jobs/jobs";
+	}
 
 	private void getFilter(Session session, ModelMap model) {
 		Query query = session.createSQLQuery("EXEC SP_CATFILLTER").addEntity(FilterSP.class);
@@ -513,8 +634,6 @@ public class MainController {
 		model.addAttribute("expYear", expyears);
 	}
 	
-	public void checkCVFileUploaded(String jobId, int userId) {
-		
-		
-	}
+	
+
 }
