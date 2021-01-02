@@ -11,6 +11,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import javax.mail.internet.MimeMessage;
 import javax.persistence.ParameterMode;
 import javax.persistence.StoredProcedureQuery;
 import javax.servlet.ServletContext;
@@ -26,6 +27,8 @@ import org.hibernate.query.NativeQuery;
 import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.CookieValue;
@@ -40,11 +43,15 @@ import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import entity.FilterSP;
 import entity.Job;
 
+
 @Controller
 public class MainController {
 
 	@Autowired
 	ServletContext context;
+	
+	@Autowired
+	JavaMailSender mailer;
 
 	@RequestMapping("index")
 	public String index(ModelMap model, @CookieValue(value = "token") String token) {
@@ -68,6 +75,8 @@ public class MainController {
 		return "home/index";
 	}
 
+	
+	
 	@RequestMapping("jobs")
 	public String jobs(ModelMap model, HttpServletResponse response, @CookieValue(value = "token") String token) {
 
@@ -183,6 +192,46 @@ public class MainController {
 		model.addAttribute("jobid", jobId);
 		model.addAttribute("uid", userId);
 		return "cv-viewer/cv-viewer";
+	}
+	
+
+	@RequestMapping(value = "cv-viewer/{jid}/{uid}", method = RequestMethod.POST )
+	public String sendMail(@PathVariable("jid") String jobId,@PathVariable("uid") String userId, ModelMap model, @CookieValue("token") String token, HttpServletRequest request) {
+		System.out.println("vao cv viewer- gui mail");
+		// truy van voi id de nap vao detail
+		LoginSignUpController.getSession("sa", "1234", (Session sess) -> { 
+			Job job = sess.get(Job.class, Integer.parseInt(jobId));
+			
+			String to = request.getParameter("mail");
+			System.out.println("gui den email la: "+to);
+			try {
+				// Tạo mail
+				MimeMessage mail = mailer.createMimeMessage();
+				// Sử dụng lớp trợ giúp
+				MimeMessageHelper helper = new MimeMessageHelper(mail);
+				String from = "learnwebcode123@gmail.com";
+				helper.setFrom(from, from);
+				helper.setTo(to);
+				helper.setReplyTo(from, from);
+				helper.setSubject("JOB AGENT WEBSITE: Đơn tuyển dụng đã được duyệt");
+						
+				String body = "<p>Đơn ứng tuyển của bạn đã được duyệt</p>";
+				body += "<p>Chi tiết công việc: </p>";
+				body += "<p>Tên công việc/ vị trí: " + job.getTitle() + "</p>";
+				body += "<p>Mô tả: " + job.getDescription() + "</p>";
+				String jobLink = "http://localhost:9999/Recruitment/job-details/"+jobId+".html";
+				String link = "<a href='"+jobLink+"'>Thông tin chi tiết Công việc</a>";
+				body += "Thông tin chi tiết vào link sau: "+ link;
+				helper.setText(body, true);
+				// Gửi mail
+				mailer.send(mail);
+				//model.addAttribute("message", "Gửi email thành công !");
+			} catch (Exception ex) {
+				//model.addAttribute("message", ex.getMessage());
+			}
+		}, null);
+		
+		return "redirect:/cv-viewer/"+jobId+"/"+userId+".html";
 	}
 
 	@RequestMapping("job-details/{id}")

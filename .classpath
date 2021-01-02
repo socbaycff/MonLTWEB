@@ -9,6 +9,7 @@
 	<classpathentry kind="src" path="resources"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-14">
 		<attributes>
+			<attribute name="module" value="true"/>
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
@@ -49,5 +50,7 @@
 	<classpathentry kind="lib" path="D:/LapTrinhWeb/Tai nguyen sinh vien/lib/Spring MVC/spring-webmvc-4.0.1.RELEASE.jar"/>
 	<classpathentry kind="lib" path="D:/LapTrinhWeb/Tai nguyen sinh vien/lib/Spring MVC/spring-webmvc-portlet-4.0.1.RELEASE.jar"/>
 	<classpathentry kind="lib" path="D:/LapTrinhWeb/Tai nguyen sinh vien/lib/Spring MVC/spring-websocket-4.0.1.RELEASE.jar"/>
+	<classpathentry kind="lib" path="D:/LapTrinhWeb/Tai nguyen sinh vien/lib/Email/activation.jar"/>
+	<classpathentry kind="lib" path="D:/LapTrinhWeb/Tai nguyen sinh vien/lib/Email/mail.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

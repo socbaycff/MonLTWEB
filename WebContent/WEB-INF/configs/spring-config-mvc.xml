@@ -22,7 +22,7 @@
 	<bean id="viewResolver" p:prefix="/WEB-INF/views/" p:suffix=".jsp"
 		class="org.springframework.web.servlet.view.InternalResourceViewResolver" />
 
-<mvc:interceptors>
+	<mvc:interceptors>
 		<mvc:interceptor>
 			<mvc:mapping path="/**" />
 			<mvc:exclude-mapping path="/signup.html" />
@@ -34,11 +34,11 @@
 
 	<bean id="multipartResolver"
 		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
-		
+
 		<property name="maxUploadSize" value="20971520" />
 	</bean>
 
-<!--	<bean id="mailSender"
+	<bean id="mailSender"
 		class="org.springframework.mail.javamail.JavaMailSenderImpl">
 		<property name="host" value="smtp.gmail.com" />
 		<property name="port" value="465" />
@@ -56,9 +56,9 @@
 				<prop key="mail.debug">true</prop>
 			</props>
 		</property>
-	</bean> -->
+	</bean>
 
-	
+
 
 	<!-- Cấu hình package chứa các controller -->
 	<context:component-scan

@@ -180,7 +180,14 @@ img {
 							<button type="submit" id="form-submit" class="main-button">Fill</button>
 						</form>
 					</div> --%>
-					<p>Email liên hệ: ${email }</p>
+					<p>Email liên hệ: ${email}</p>
+					<div class="text-content">
+							<form action="cv-viewer/${jobid}/${uid}.html" method="post">
+								<h4><input type="submit" name="mail" value="${email}">Gửi mail thông báo đã chấp thuận</h4>
+							</form>
+							
+							
+						</div>
 					<embed src="cvs/${jobid}/${uid}" width="2500" height="500"
 								type="application/pdf">
 					<div class="col-md-8 col-xs-12">
